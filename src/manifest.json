@@ -1,0 +1,15 @@
+{
+  "name": "Houston",
+  "description": "Set cookies to route requests to specific service versions",
+  "icons": {"128": "icon.png"},
+  "version": "0.1",
+  "permissions": ["storage", "contextMenus", "cookies", "<all_urls>"],
+  "background": {
+    "scripts": ["houston.js", "houston_crx.js"]
+  },
+  "options_ui": {
+    "page": "options.html",
+    "chrome_style": true
+  },
+  "manifest_version": 2
+}
