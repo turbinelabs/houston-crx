@@ -1,8 +1,8 @@
 {
-  "name": "Houston",
+  "name": "Houston, by Turbine Labs",
   "description": "Set cookies to route requests to specific service versions",
-  "icons": {"128": "icon.png"},
-  "version": "0.1",
+  "icons": { "128": "icon.png" },
+  "version": "0.11.0",
   "permissions": ["storage", "contextMenus", "cookies", "<all_urls>"],
   "background": {
     "scripts": ["houston.js", "houston_crx.js"]
