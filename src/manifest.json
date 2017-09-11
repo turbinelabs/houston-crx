@@ -1,6 +1,8 @@
 {
-  "name": "Houston, by Turbine Labs",
+  "name": "Houston Cookie Manager",
   "description": "Set cookies to route requests to specific service versions",
+  "author": "Art Gillespie",
+  "short_name": "Houston Cookie Manager",
   "icons": { "128": "icon.png" },
   "version": "0.11.0",
   "permissions": ["storage", "contextMenus", "cookies", "<all_urls>"],
