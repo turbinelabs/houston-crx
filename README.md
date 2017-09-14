@@ -11,9 +11,10 @@
 [//]: # ( permissions and limitations under the License.                      )
 
 # Houston Chrome Extension
-# Easily set version routing cookies for your Houston-fronted application
 
 [![Apache 2.0](https://img.shields.io/hexpm/l/plug.svg)](LICENSE)
+
+Easily set version routing cookies for your Houston-fronted application
 
 ## Requirements
 
