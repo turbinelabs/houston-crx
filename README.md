@@ -12,7 +12,7 @@
 
 # Houston Chrome Extension
 
-[![Apache 2.0](https://img.shields.io/hexpm/l/plug.svg)](LICENSE)
+[![Apache 2.0](https://img.shields.io/badge/license-apache%202.0-blue.svg)](LICENSE)
 
 Easily set version routing cookies for your Houston-fronted application
 
