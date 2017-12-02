@@ -39,6 +39,9 @@ function getApiKeyAndHost() {
 // map cluster names to cookie names and current cookie values
 let cookieNameMap = new Map()
 
+// map of zone/cluster names we've processed
+let clusterSeenInZone = new Set()
+
 // generate a menu click handler that closes over the cookie's name and value
 function setHandler(cookieName, cookieValue) {
   return (info, tab) => {
@@ -51,7 +54,7 @@ function setHandler(cookieName, cookieValue) {
       expirationDate: Date.now() / 1000 + 7 * 24 * 60 * 60 * 60,
     }
     chrome.cookies.set(newCookie, cookie => {
-      if (cookie === null) {
+      if (cookie == null) {
         console.error('error setting cookie', chrome.runtime.lastError)
       } else {
         // update cookieNameMap
@@ -65,7 +68,6 @@ function setHandler(cookieName, cookieValue) {
 
 function removeHandler(menuId, cookieName) {
   return (info, tab) => {
-    console.log(`remove cookie: ${cookieName}`)
     chrome.cookies.remove(
       {
         url: HOST_URL.href,
@@ -141,7 +143,6 @@ function update() {
     .then(val => {
       if (val[HOST_STORAGE_KEY]) {
         HOST_URL = new URL(val[HOST_STORAGE_KEY])
-        console.log('changed host URL to', HOST_URL)
       }
       if (val[API_KEY_STORAGE_KEY]) {
         API_KEY = val[API_KEY_STORAGE_KEY]
@@ -177,20 +178,35 @@ function update() {
         onclick: update,
       })
       chrome.contextMenus.create({ type: 'separator' })
-      zones.forEach(z => {
+
+      zones.sort((a, b) =>
+        a.name.localeCompare(b.name)
+      ).forEach(z => {
         // create a menu for each zone...
         const zoneMenuId = chrome.contextMenus.create({
           title: z.name,
           contexts: ['page'],
         })
+
         // get only the clusters for the current zone...
-        clusters.filter(c => c.zone_key === z.zone_key).forEach(c => {
+        clusters.filter(c =>
+          c.zone_key === z.zone_key
+        ).sort((a, b) =>
+          a.name.localeCompare(b.name)
+        ).forEach(c => {
           sharedRules.forEach(s => {
             let cookieName = getCookieNameFromSharedRules(s, c)
             if (cookieName !== null) {
-              console.log(
-                `adding entry for cookie ${cookieName} to cluster ${c.name}`,
-              )
+              // if we've already encountered this name/cookie in this zone from
+              // another shared rule, skip it.
+              let zoneAndClusterName = `${z.name}-${c.name}-${cookieName}`
+              if (clusterSeenInZone.has(zoneAndClusterName)) {
+                return
+              }
+              clusterSeenInZone.add(zoneAndClusterName, true)
+
+              // cache the current value of the cookie, so that if it's set
+              // from some other sharedRules, it is checked here.
               if (!cookieNameMap.get(c.name)) {
                 cookieNameMap.set(c.name, {
                   name: cookieName,
@@ -199,12 +215,13 @@ function update() {
               } else {
                 cookieName = cookieNameMap.get(c.name).name
               }
+
               const currentValue =
                 cookieNameMap.get(c.name) &&
                 cookieNameMap.get(c.name).currentValue
 
               const clusterMenuId = chrome.contextMenus.create({
-                title: c.name,
+                title: `${c.name}: ${cookieName}`,
                 parentId: zoneMenuId,
               })
               let checked = !currentValue
