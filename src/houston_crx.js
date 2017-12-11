@@ -39,9 +39,6 @@ function getApiKeyAndHost() {
 // map cluster names to cookie names and current cookie values
 let cookieNameMap = new Map()
 
-// map of zone/cluster names we've processed
-let clusterSeenInZone = new Set()
-
 // generate a menu click handler that closes over the cookie's name and value
 function setHandler(cookieName, cookieValue) {
   return (info, tab) => {
@@ -139,6 +136,9 @@ function openOptions() {
 }
 
 function update() {
+  // set of zone/cluster names we've processed
+  let clusterSeenInZone = new Set()
+
   getApiKeyAndHost()
     .then(val => {
       if (val[HOST_STORAGE_KEY]) {
