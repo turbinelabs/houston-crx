@@ -14,7 +14,11 @@
  */
 
 /* globals chrome getCookieNameFromSharedRules getInstanceVersionsFromCluster */
-let HOST_URL = new URL('https://app.turbinelabs.io')
+let HOST_URLS = new Set([
+  new URL('https://app.turbinelabs.io'),
+  new URL('https://docs.turbinelabs.io'),
+  new URL('https://www.turbinelabs.io'),
+])
 const API_BASE = 'https://api.turbinelabs.io/v1.0'
 const API_KEY_STORAGE_KEY = 'io.turbinelabs.houston-crx.api-key'
 const HOST_STORAGE_KEY = 'io.turbinelabs.houston-crx.host'
@@ -42,43 +46,47 @@ let cookieNameMap = new Map()
 // generate a menu click handler that closes over the cookie's name and value
 function setHandler(cookieName, cookieValue) {
   return (info, tab) => {
-    const newCookie = {
-      url: HOST_URL.href,
-      domain: HOST_URL.domain,
-      path: '',
-      name: cookieName,
-      value: cookieValue,
-      expirationDate: Date.now() / 1000 + 7 * 24 * 60 * 60 * 60,
-    }
-    chrome.cookies.set(newCookie, cookie => {
-      if (cookie == null) {
-        console.error('error setting cookie', chrome.runtime.lastError)
-      } else {
-        // update cookieNameMap
-        getAll()
-        // update the menu item as checked
-        chrome.contextMenus.update(info.menuItemId, { checked: true })
+    HOST_URLS.forEach (url => {
+      const newCookie = {
+        url: url.href,
+        domain: url.domain,
+        path: '',
+        name: cookieName,
+        value: cookieValue,
+        expirationDate: Date.now() / 1000 + 7 * 24 * 60 * 60 * 60,
       }
+      chrome.cookies.set(newCookie, cookie => {
+        if (cookie === null) {
+          console.error('error setting cookie', chrome.runtime.lastError)
+        } else {
+          // update cookieNameMap
+          getAll()
+          // update the menu item as checked
+          chrome.contextMenus.update(info.menuItemId, { checked: true })
+        }
+      })
     })
   }
 }
 
 function removeHandler(menuId, cookieName) {
   return (info, tab) => {
-    chrome.cookies.remove(
-      {
-        url: HOST_URL.href,
-        name: cookieName,
-      },
-      details => {
-        if (details) {
-          chrome.contextMenus.update(menuId, { checked: true })
-        } else {
-          console.error(`error removing cookie: ${chrome.runtime.lastError}`)
-        }
-      },
-    )
-  }
+    HOST_URLS.forEach (url => {
+      chrome.cookies.remove(
+        {
+          url: url.href,
+          name: cookieName,
+        },
+        details => {
+          if (details) {
+            chrome.contextMenus.update(menuId, { checked: true })
+          } else {
+            console.error(`error removing cookie: ${chrome.runtime.lastError}`)
+          }
+        },
+      )
+    }
+  )}
 }
 
 function removeAll() {
@@ -94,7 +102,7 @@ function getCookie(cookieName) {
   return new Promise(resolve => {
     chrome.cookies.get(
       {
-        url: HOST_URL.href,
+        url: HOST_URLS.values().next().value.href,
         name: cookieName,
       },
       cookie => {
@@ -142,7 +150,11 @@ function update() {
   getApiKeyAndHost()
     .then(val => {
       if (val[HOST_STORAGE_KEY]) {
-        HOST_URL = new URL(val[HOST_STORAGE_KEY])
+        HOST_URLS = new Set(
+          val[HOST_STORAGE_KEY].split(',').map(v => {
+            return new URL(v.trim())
+          })
+        )
       }
       if (val[API_KEY_STORAGE_KEY]) {
         API_KEY = val[API_KEY_STORAGE_KEY]
