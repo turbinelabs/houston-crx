@@ -18,6 +18,7 @@ let HOST_URLS = new Set([
   new URL('https://app.turbinelabs.io'),
   new URL('https://docs.turbinelabs.io'),
   new URL('https://www.turbinelabs.io'),
+  new URL('https://www.learnenvoy.io'),
 ])
 const API_BASE = 'https://api.turbinelabs.io/v1.0'
 const API_KEY_STORAGE_KEY = 'io.turbinelabs.houston-crx.api-key'
