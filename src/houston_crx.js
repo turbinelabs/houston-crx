@@ -15,8 +15,10 @@
 
 /* globals chrome getCookieNameFromSharedRules getInstanceVersionsFromCluster */
 let HOST_URLS = new Set([
+  new URL('http://app.turbinelabs.int'),
   new URL('https://app.turbinelabs.io'),
   new URL('https://docs.turbinelabs.io'),
+  new URL('https://login.turbinelabs.io'),
   new URL('https://www.turbinelabs.io'),
   new URL('https://www.learnenvoy.io'),
 ])
