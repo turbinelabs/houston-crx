@@ -4,7 +4,7 @@
   "author": "Art Gillespie",
   "short_name": "Houston Cookie Manager",
   "icons": { "128": "icon.png" },
-  "version": "0.18.2",
+  "version": "0.19.0",
   "permissions": ["storage", "contextMenus", "cookies", "<all_urls>"],
   "background": {
     "scripts": ["houston.js", "houston_crx.js"]
